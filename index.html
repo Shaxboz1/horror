@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Verifier</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .captcha-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .captcha-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .captcha-box input {
+            margin-right: 10px;
+        }
+        .captcha-text {
+            font-size: 16px;
+        }
+        .loading {
+            width: 16px;
+            height: 16px;
+            border: 3px solid #ccc;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .verified {
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Fullscreen Image Animation */
+        .fullscreen-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 10%;
+            height: 10%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.1);
+            transition: transform 0.1s ease-out, opacity 0.2s ease-out;
+            z-index: 2000;
+        }
+        .fullscreen-image.show {
+            width: 100vw;
+            height: 100vh;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CAPTCHA modal -->
+    <div id="captchaModal" class="captcha-modal">
+        <div class="captcha-box" onclick="verifyCaptcha()">
+            <input type="checkbox" id="captcha" disabled>
+            <span class="captcha-text">I'm not a robot</span>
+            <div class="loading" id="loading"></div>
+            <span class="verified" id="verified">✔</span>
+        </div>
+    </div>
+
+    <!-- Fullscreen Image -->
+    <img id="fullscreenImage" class="fullscreen-image" src="insets/q.jpg" alt="Verification Image" onclick="closeImage()">
+
+    <!-- Audio element -->
+    <audio id="scarySound" src="insets/screaming-woman-in-the-basement.mp3"></audio>
+
+    <script>
+        function verifyCaptcha() {
+            let checkbox = document.getElementById("captcha");
+            let loading = document.getElementById("loading");
+            let verified = document.getElementById("verified");
+            let captchaModal = document.getElementById("captchaModal");
+            let fullscreenImage = document.getElementById("fullscreenImage");
+            let audio = document.getElementById("scarySound");
+
+            if (!checkbox.checked) {
+                loading.style.display = "block";
+
+                setTimeout(() => {
+                    loading.style.display = "none";
+                    verified.style.display = "inline";
+                    checkbox.checked = true;
+                    playLoudSound(audio);
+                    setTimeout(() => {
+                        captchaModal.style.display = "none"; // CAPTCHA modalni yopish
+                        fullscreenImage.classList.add("show"); // Rasm animatsiya bilan chiqishi
+                    }, 180);
+                }, 2000);
+            }
+        }
+
+        function closeImage() {
+            let audio = document.getElementById("scarySound");
+            document.getElementById("fullscreenImage").classList.remove("show");
+            
+            // Ovoz to'xtatish
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        function playLoudSound(audioElement) {
+            let context = new (window.AudioContext || window.webkitAudioContext)();
+            let source = context.createMediaElementSource(audioElement);
+            let gainNode = context.createGain();
+            
+            gainNode.gain.value = 3; // 🔊 **3X KUCHAYTIRISH**
+            source.connect(gainNode);
+            gainNode.connect(context.destination);
+
+            // **📌 Foydalanuvchi bosganida brauzer ruxsat beradi**
+            audioElement.volume = 1.0;
+            audioElement.play().catch(error => {
+                console.log("Ovoz avtomatik ijro bo‘lmadi, foydalanuvchi bosishi kerak.");
+            });
+        }
+    </script>
+
+</body>
+</html>
